@@ -6,6 +6,8 @@ Things like CORS and authentication should be done at a higher-level than this c
 
 ![A screenshot of the DRAX UI showing filtering events](./assets/screenshot.webp)
 
+> Named for [Hugo](https://purl.r0b.io/drax)
+
 ## Usage
 
 ### Configuration
@@ -95,6 +97,8 @@ A JSON file for downloading all of the events in the system.
 ### UI
 
 If you visit the root URL, `/`, there is a basic app to explore the data in the [API](#api).
+
+![A screenshot of the DRAX UI showing filtering events](./assets/screenshot.webp)
 
 ## Deployment
 
