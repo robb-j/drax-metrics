@@ -1,6 +1,6 @@
 # drax-metrics
 
-A minimalistic metrics microservice container to collect anonymous events on a website,
+A minimalistic metrics micro-service container to collect anonymous events on a website,
 It's made up of an API to collect the metrics and a simple UI to view them.
 Things like CORS and authentication should be done at a higher-level than this container, like a Kubernetes Ingress.
 
@@ -36,7 +36,7 @@ You could provide a JSON configuration file to override certain fields like this
 
 ### Events schema
 
-To validate the events you want to store, you alsoe provide a [JSON schema](https://json-schema.org/specification), `schema.json`.
+To validate the events you want to store, you also provide a [JSON schema](https://json-schema.org/specification), `schema.json`.
 Every event that comes into the server is validated against this schema.
 
 It is recommended to have a top-level `anyOf` operator, like [./schema.json](./schema.json), then each event type is one of the children of that. Every event must have a `name` and then any other fields you would like to record. The API also takes a `visitor` field but this is validated outside of the schema.
