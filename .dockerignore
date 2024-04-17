@@ -1,0 +1,5 @@
+#
+# Files to hide from Docker
+#
+
+assets

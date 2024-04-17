@@ -1,0 +1,30 @@
+:root {
+  --font-main: Rubik, system-ui, sans-serif;
+}
+
+header {
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.metaTiles {
+  border-radius: var(--s-1);
+  background-color: var(--highlight);
+}
+
+.tile {
+  padding: var(--s-1);
+  text-align: center;
+}
+.tile-title {
+  font-weight: bold;
+}
+.tile-value {
+  font-size: 1.5em;
+}
+
+/* Should this be in labcoat? */
+.field-label {
+  font-weight: bold;
+  font-style: italic;
+}

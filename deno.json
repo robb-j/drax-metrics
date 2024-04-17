@@ -1,0 +1,18 @@
+{
+  "tasks": {
+    "dev": "deno run -A --watch=config.json,schema.json --env source/server.ts",
+    "serve": "deno run --allow-env --allow-read=. --allow-net source/server.ts",
+    "migrate": "deno run -A source/migrate.ts",
+    "config": "deno run -A source/config.ts"
+  },
+  "imports": {
+    "std/": "https://deno.land/std@0.223.0/",
+    "gruber/": "https://esm.r0b.io/gruber@0.4.1/",
+    "postgres/": "https://deno.land/x/postgresjs@v3.4.4/",
+    "ajv": "npm:ajv@^8.12.0"
+  },
+  "fmt": {
+    "singleQuote": true,
+    "semiColons": false
+  }
+}

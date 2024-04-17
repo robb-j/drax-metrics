@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Drax Analytics</title>
+
+    <link rel="stylesheet" href="https://fonts.openlab.dev/rubik/rubik.css" />
+    <link rel="preconnect" href="https://fonts.openlab.dev/" />
+
+    <link rel="stylesheet" href="https://alembic.openlab.dev/labcoat.css" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header>
+      <a href="/">Drax</a>
+    </header>
+    <main>
+      <center-layout>
+        <stack-layout space="s3">
+          <div class="metaTiles">
+            <switcher-layout limit="3">
+              <div class="tile" id="events">
+                <p class="tile-title">Events</p>
+                <p class="tile-value"></p>
+              </div>
+              <div class="tile" id="visitors">
+                <p class="tile-title">Visitors</p>
+                <p class="tile-value"></p>
+              </div>
+              <div class="tile" id="types">
+                <p class="tile-title">Types</p>
+                <p class="tile-value"></p>
+              </div>
+            </switcher-layout>
+          </div>
+
+          <cluster-layout space="s1" align="flex-end">
+            <label class="field">
+              <span class="field-label">Type</span>
+              <select id="typeFilter">
+                <option selected disabled value="">Not selected</option>
+              </select>
+            </label>
+            <span>or</span>
+            <label class="field">
+              <span class="field-label">Visitor</span>
+              <select id="visitorFilter">
+                <option selected disabled value="">Not selected</option>
+              </select>
+            </label>
+            <span>or</span>
+            <a href="/download" download="export.json">Download data</a>
+          </cluster-layout>
+          <p id="splash">Hello there Mr. Bond</p>
+          <table id="output"></table>
+        </stack-layout>
+      </center-layout>
+    </main>
+    <footer>
+      DRAX Analytics by <a href="https://www.r0b.io">Rob</a> &mdash; named for
+      <a href="https://en.wikipedia.org/wiki/Hugo_Drax">Hugo</a>
+    </footer>
+    <script
+      type="module"
+      src="https://alembic.openlab.dev/everything.js"
+    ></script>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

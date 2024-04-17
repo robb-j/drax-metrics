@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$comment": "This is a sample schema for Drax metrics",
+  "anyOf": [
+    {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "const": "page_view" },
+        "url": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "const": "login" }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "const": "logout" }
+      },
+      "additionalProperties": false
+    }
+  ]
+}
