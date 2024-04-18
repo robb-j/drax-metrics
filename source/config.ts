@@ -24,6 +24,9 @@ const appStruct = config.object({
       fallback: "postgres://user:secret@localhost:5432/user",
     }),
   }),
+  cors: config.object({
+    origins: config.string({ variable: 'CORS_ORIGINS',fallback: '*' }),
+  })
 });
 
 export type AppConfig = ReturnType<typeof getConfig>

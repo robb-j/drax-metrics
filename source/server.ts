@@ -160,7 +160,50 @@ const publicFiles = defineRoute({
   },
 });
 
+const preflight = defineRoute({
+  method: "OPTIONS" as any, // TODO: gruber doesn't support OPTIONS requests
+  pathname: "*",
+  handler({ request }) {
+    console.log(request.headers);
+    return new Response(undefined);
+  },
+});
+
+const corsOrigins = new Set(
+  appConfig.cors.origins.split(",").filter((h) => h.trim())
+);
+
+// Loosely based on https://github.com/expressjs/cors/blob/master/lib/index.js
+function applyCors(request: Request, headers: Headers) {
+  // HTTP methods
+  headers.append(
+    "Access-Control-Allow-Method",
+    "GET,HEAD,PUT,PATCH,POST,DELETE"
+  );
+
+  // Headers
+  if (request.headers.has("access-control-request-headers")) {
+    headers.append(
+      "Access-Control-Allow-Headers",
+      request.headers.get("access-control-request-headers")!
+    );
+    headers.append("Vary", "Access-Control-Request-Headers");
+  }
+
+  // Origins
+  if (appConfig.cors.origins === "*") {
+    headers.set("Access-Control-Allow-Origin", "*");
+  } else if (
+    request.headers.has("origin") &&
+    corsOrigins.has(request.headers.get("origin")!)
+  ) {
+    headers.set("Access-Control-Allow-Origin", request.headers.get("origin")!);
+    headers.append("Vary", "Origin");
+  }
+}
+
 const routes = [
+  preflight,
   info,
   healthz,
   createEvent,
@@ -192,6 +235,7 @@ if (import.meta.main) {
   const router = new DenoRouter({ routes });
   const server = Deno.serve({ port: appConfig.port }, async (request) => {
     const response = await router.getResponse(request);
+    applyCors(request, response.headers);
     console.debug(response.status, request.method.padEnd(5), request.url);
     return response;
   });
