@@ -20,7 +20,7 @@ The configuration is self-documenting and with the repo checked-out, you can get
 | database.url | url    | ~      | DATABASE_URL | postgres://user:secret@localhost:5432/user |
 | env          | string | ~      | DENO_ENV     | production                                 |
 | meta.name    | string | ~      | APP_NAME     | drax-metrics                               |
-| meta.version | string | ~      | APP_VERSION  | 0.0.0                                      |
+| meta.version | string | ~      | APP_VERSION  | 1.2.3                                      |
 | port         | number | --port | APP_PORT     | 8000                                       |
 | selfUrl      | url    | ~      | SELF_URL     | http://localhost:8000/                     |
 
