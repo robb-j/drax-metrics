@@ -4,6 +4,10 @@
 // A very minimal client app to view metrics from the API
 //
 
+import { DraxClient } from "./client.js";
+
+const api = new DraxClient(location.href);
+
 const dateFormat = new Intl.DateTimeFormat(undefined, {
   dateStyle: "short",
   timeStyle: "medium",
@@ -13,8 +17,11 @@ const numberFormat = new Intl.NumberFormat(undefined, {
   notation: "compact",
 });
 
-function main() {
-  updateMeta();
+async function main() {
+  const info = await api.info();
+  console.log("Welcome to %s v%s", info.meta.name, info.meta.version);
+
+  await updateMeta();
   setInterval(30_000, () => updateMeta());
 
   const visitorFilter = document.getElementById("visitorFilter");
@@ -24,19 +31,19 @@ function main() {
   // Update the table when a filter changes
   //
 
-  visitorFilter.addEventListener("change", (e) => {
+  visitorFilter.addEventListener("change", async (e) => {
     const visitor = e.target.value;
     if (!visitor) return;
     typeFilter.value = "";
-    showData(`/visitors/${visitor}`);
+    renderEvents(await api.visitorEvents(visitor));
     replaceQuery(new URLSearchParams({ visitor }));
   });
 
-  typeFilter.addEventListener("change", (e) => {
+  typeFilter.addEventListener("change", async (e) => {
     const type = e.target.value;
     if (!type) return;
     visitorFilter.value = "";
-    showData(`/events/${type}`);
+    renderEvents(await api.typedEvents(type));
     replaceQuery(new URLSearchParams({ type }));
   });
 
@@ -48,19 +55,17 @@ function main() {
   if (url.searchParams.get("visitor")) {
     const visitor = url.searchParams.get("visitor");
     visitorFilter.value = visitor;
-    showData(`/visitors/${visitor}`);
+    renderEvents(await api.visitorEvents(visitor));
   } else if (url.searchParams.get("type")) {
     const type = url.searchParams.get("type");
     typeFilter.value = type;
-    showData(`/events/${type}`);
+    renderEvents(await api.typedEvents(type));
   }
 }
 
 // Update that top section
 async function updateMeta() {
-  const { events, visitors, types } = await fetch("/meta").then((r) =>
-    r.json()
-  );
+  const { events, visitors, types } = await api.meta();
 
   updateTile("events", events);
   updateTile("visitors", visitors.length);
@@ -88,8 +93,11 @@ function updateFilter(id, values) {
   }
 }
 
-// Fetch Event records and show them in a table
-async function showData(endpoint) {
+/**
+ * Show event records in a table
+ * @param {import('./client.js').DraxEvent[]} events
+ */
+function renderEvents(events) {
   document.getElementById("splash")?.remove();
 
   const table = document.querySelector("#output");
@@ -97,19 +105,18 @@ async function showData(endpoint) {
 
   const thead = table.appendChild(document.createElement("thead"));
   thead.innerHTML = `
-  <tr>
-    <th>id</th>
-    <th>date</th>
-    <th>event</th>
-    <th>visitor</th>
-    <th>payload</th>
-  </tr>
+    <tr>
+      <th>id</th>
+      <th>date</th>
+      <th>event</th>
+      <th>visitor</th>
+      <th>payload</th>
+    </tr>
   `;
 
   const tbody = table.appendChild(document.createElement("tbody"));
-  const data = await fetch(endpoint).then((r) => r.json());
 
-  for (const record of data) {
+  for (const record of events) {
     const tr = tbody.appendChild(document.createElement("tr"));
     tr.innerHTML += `<td>${record.id}</td>`;
     tr.innerHTML += `<td>${dateFormat.format(new Date(record.created))}</td>`;

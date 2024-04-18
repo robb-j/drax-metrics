@@ -8,21 +8,24 @@
         "name": { "type": "string", "const": "page_view" },
         "url": { "type": "string" }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": ["name", "url"]
     },
     {
       "type": "object",
       "properties": {
         "name": { "type": "string", "const": "login" }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": ["name"]
     },
     {
       "type": "object",
       "properties": {
         "name": { "type": "string", "const": "logout" }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "required": ["name"]
     }
   ]
 }

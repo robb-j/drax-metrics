@@ -8,4 +8,6 @@ COPY --chown=deno:deno [".", "/app/"]
 
 RUN deno cache source/*.ts
 
+ENV DENO_ENV production
+
 CMD ["task", "serve"]

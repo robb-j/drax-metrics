@@ -5,7 +5,7 @@ import { appConfig } from "./config.ts";
 
 const info = defineRoute({
   method: "GET",
-  pathname: "/info",
+  pathname: "/api",
   handler() {
     return Response.json({
       message: "ok",
@@ -27,7 +27,7 @@ const healthz = defineRoute({
 
 const createEvent = defineRoute({
   method: "POST",
-  pathname: "/events/:name",
+  pathname: "/api/events/:name",
   async handler({ request, params }) {
     const sql = useDatabase();
 
@@ -51,7 +51,7 @@ const createEvent = defineRoute({
 
 const listTypes = defineRoute({
   method: "GET",
-  pathname: "/types",
+  pathname: "/api/types",
   async handler() {
     const sql = useDatabase();
     const records = await sql`
@@ -66,7 +66,7 @@ const listTypes = defineRoute({
 
 const typedEvents = defineRoute({
   method: "GET",
-  pathname: "/events/:name",
+  pathname: "/api/events/:name",
   async handler({ params }) {
     const sql = useDatabase();
     const records = await sql`
@@ -81,7 +81,7 @@ const typedEvents = defineRoute({
 
 const listVisitors = defineRoute({
   method: "GET",
-  pathname: "/visitors",
+  pathname: "/api/visitors",
   async handler() {
     const sql = useDatabase();
     const records = await sql`
@@ -96,7 +96,7 @@ const listVisitors = defineRoute({
 
 const visitorEvents = defineRoute({
   method: "GET",
-  pathname: "/visitors/:visitor",
+  pathname: "/api/visitors/:visitor",
   async handler({ params }) {
     const sql = useDatabase();
     const records = await sql`
@@ -111,7 +111,7 @@ const visitorEvents = defineRoute({
 
 const createVisitor = defineRoute({
   method: "POST",
-  pathname: "/visitors",
+  pathname: "/api/visitors",
   handler() {
     return Response.json({ id: crypto.randomUUID() });
   },
@@ -119,7 +119,7 @@ const createVisitor = defineRoute({
 
 const meta = defineRoute({
   method: "GET",
-  pathname: "/meta",
+  pathname: "/api/meta",
   async handler() {
     const sql = useDatabase();
 
@@ -143,7 +143,7 @@ const meta = defineRoute({
 
 const download = defineRoute({
   method: "GET",
-  pathname: "/download",
+  pathname: "/api/download",
   async handler() {
     const sql = useDatabase();
     const records = await sql`SELECT * from events`;

@@ -1,10 +1,15 @@
 :root {
   --font-main: Rubik, system-ui, sans-serif;
+  --measure: 70em;
 }
 
 header {
   font-weight: bold;
   text-transform: uppercase;
+}
+
+switcher-layout {
+  justify-content: space-around;
 }
 
 .metaTiles {
@@ -15,6 +20,7 @@ header {
 .tile {
   padding: var(--s-1);
   text-align: center;
+  max-width: 12em;
 }
 .tile-title {
   font-weight: bold;
@@ -27,4 +33,8 @@ header {
 .field-label {
   font-weight: bold;
   font-style: italic;
+}
+
+select {
+  max-width: 200px;
 }
