@@ -1,7 +1,7 @@
 # drax-metrics
 
-A minimalistic metrics micro-service container to collect anonymous events on a website,
-It's made up of an API to collect the metrics and a simple UI to view them.
+A minimalistic metrics micro-service app to collect anonymous events on a website.
+It's made up of an API to collect the metrics, a simple UI to view them and a JSON schema to validate events.
 Things like CORS and authentication should be done at a higher-level than this container, like a Kubernetes Ingress.
 
 ![A screenshot of the DRAX UI showing filtering events](./assets/screenshot.webp)
@@ -23,6 +23,9 @@ The configuration is self-documenting and with the repo checked-out, you can get
 | meta.version | string | ~      | APP_VERSION  | 1.2.3                                      |
 | port         | number | --port | APP_PORT     | 8000                                       |
 | selfUrl      | url    | ~      | SELF_URL     | http://localhost:8000/                     |
+| cors.origins | string | ~      | CORS_ORIGINS | *                                          |
+
+> cors.origins - Mainly for development or local deployments, set to a csv of hosts to allow
 
 You could provide a JSON configuration file to override certain fields like this:
 
@@ -41,7 +44,7 @@ You could provide a JSON configuration file to override certain fields like this
 To validate the events you want to store, you also provide a [JSON schema](https://json-schema.org/specification), `schema.json`.
 Every event that comes into the server is validated against this schema.
 
-It is recommended to have a top-level `anyOf` operator, like [./schema.json](./schema.json), then each event type is one of the children of that. Every event must have a `name` and then any other fields you would like to record. The API also takes a `visitor` field but this is validated outside of the schema.
+It is recommended to have a top-level `anyOf` operator, like [./schema.json](./schema.json), then each event type is one of the children of that. Every event must have a `name` and then any other fields you would like to record. The API also takes a `visitor` field but this is validated outside of the schema. you will probably also want to use "required" too.
 
 ### Extra arguments
 
@@ -51,7 +54,7 @@ When running the server, there are these extra CLI arguments you might want to u
 
 ### API
 
-**info** — `GET /info`
+**info** — `GET /api`
 
 Get information about the API and let's you know everything is working
 
@@ -59,31 +62,31 @@ Get information about the API and let's you know everything is working
 
 An endpoint to be used as a Kubernetes readiness probe endpoint
 
-**create event** — `POST /events/:name`
+**createEvent** — `POST /api/events/:name`
 
 Log a new event in the system. It takes a JSON payload that should have your custom fields and a `visitor` string value. It returns the new event if it is useful.
 
-**list types** — `GET /types`
+**listTypes** — `GET /api/types`
 
 Lists each event types and the number of events for them. This is only based on the events in the database and doesn't consult the schema.
 
-**typed events** — `GET /events/:name`
+**typedEvents** — `GET /api/events/:name`
 
 Gets events of a specific type.
 
-**list visitors** — `GET /visitors`
+**listVisitors** — `GET /api/visitors`
 
 Lists each unique visitor and the number of events they have triggered.
 
-**visitor events** — `GET /visitor/:visitor`
+**visitorEvents** — `GET /api/visitors/:visitor`
 
 Gets all the events belonging to a visitor.
 
-**create visitor** — `POST /visitors`
+**createVisitor** — `POST /api/visitors`
 
 Generate a unique ID for the `visitor` field. Visitor can be anything, I thought this might be helpful though?
 
-**meta** — `GET /meta`
+**meta** — `GET /api/meta`
 
 Fetches aggregations and general information about the metrics stored.
 You get the total number of events and a list of types and visitors.
@@ -96,9 +99,21 @@ You get the total number of events and a list of types and visitors.
 }
 ```
 
-**download** — `GET /download`
+**download** — `GET /api/download`
 
 A JSON file for downloading all of the events in the system.
+
+### Client
+
+There is an API client hosted along with the app, once constructed each endpoint has a same-named method to fetch the JSON with appropriate parameters as method variables.
+
+```ts
+import { DraxClient } from "http://localhost:8000/client.js"
+
+const api = new DraxClient(location.href)
+
+const data = await api.meta()
+```
 
 ### UI
 
