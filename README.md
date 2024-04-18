@@ -43,6 +43,12 @@ Every event that comes into the server is validated against this schema.
 
 It is recommended to have a top-level `anyOf` operator, like [./schema.json](./schema.json), then each event type is one of the children of that. Every event must have a `name` and then any other fields you would like to record. The API also takes a `visitor` field but this is validated outside of the schema.
 
+### Extra arguments
+
+When running the server, there are these extra CLI arguments you might want to use:
+
+- `--migrate` — run available database migrations
+
 ### API
 
 **info** — `GET /info`

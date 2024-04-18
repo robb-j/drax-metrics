@@ -1,7 +1,8 @@
 import { serveDir } from "std/http/mod.ts";
 import { defineRoute, DenoRouter, HTTPError } from "gruber/mod.ts";
-import { useDatabase } from "./migrate.ts";
+import { runMigrations, useDatabase } from "./migrate.ts";
 import { appConfig } from "./config.ts";
+import { parseArgs } from "std/cli/parse_args.ts";
 
 const info = defineRoute({
   method: "GET",
@@ -185,6 +186,9 @@ async function shutdown(server: Deno.HttpServer) {
 }
 
 if (import.meta.main) {
+  const args = parseArgs(Deno.args, { boolean: ["migrate"] });
+  if (args.migrate) await runMigrations("up");
+
   const router = new DenoRouter({ routes });
   const server = Deno.serve({ port: appConfig.port }, async (request) => {
     const response = await router.getResponse(request);

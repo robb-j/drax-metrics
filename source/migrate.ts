@@ -6,19 +6,23 @@ export const useDatabase = loader(() => {
   return postgres(appConfig.database.url.toString());
 });
 
-if (import.meta.main) {
+export async function runMigrations(direction: "up" | "down") {
   const sql = useDatabase();
   const migrator = getDenoPostgresMigrator({
     sql: sql,
     directory: new URL("../migrations/", import.meta.url),
   });
 
-  if (Deno.args.includes("down")) await migrator.down();
-  else if (Deno.args.includes("up")) await migrator.up();
+  await migrator[direction]();
+
+  await sql.end();
+}
+
+if (import.meta.main) {
+  if (Deno.args.includes("down")) await runMigrations("down");
+  else if (Deno.args.includes("up")) await runMigrations("up");
   else {
     console.error("Usage:\n  migrator.ts <up|down>");
     Deno.exit(1);
   }
-
-  await sql.end();
 }
