@@ -155,4 +155,4 @@ deno task serve
 3. Commit the change as `vX.Y.Z`
 4. Tag the commit as `vX.Y.Z`
 5. Push the commit & tag and it'll build the container.
-6. Upload the versioned client into the S3 bucket with `public-read` permissions
+6. Upload the versioned client & schema into the S3 bucket with `public-read` permissions
