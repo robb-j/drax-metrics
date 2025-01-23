@@ -81,6 +81,6 @@ export class DraxClient {
 
   /** @returns {Promise<{ events: number, visitors: string[], types: string[] }>} */
   meta() {
-    return this.fetchJson("/api/meta");
+    return this.fetchJson("api/meta");
   }
 }
