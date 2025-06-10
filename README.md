@@ -1,8 +1,9 @@
 # drax-metrics
 
-A minimalistic metrics micro-service app to collect anonymous events on a website.
-It's made up of an API to collect the metrics, a simple UI to view them and a JSON schema to validate events.
-Things like CORS and authentication should be done at a higher-level than this container, like a Kubernetes Ingress.
+A minimalistic metrics micro-service app to collect anonymous events on a
+website. It's made up of an API to collect the metrics, a simple UI to view them
+and a JSON schema to validate events. Things like CORS and authentication should
+be done at a higher-level than this container, like a Kubernetes Ingress.
 
 ![A screenshot of the DRAX UI showing filtering events](./assets/screenshot.webp)
 
@@ -12,27 +13,34 @@ Things like CORS and authentication should be done at a higher-level than this c
 
 ### Configuration
 
-The container has configuration based on a JSON file, `config.json`, CLI arguments and environment variables, based on [Gruber](https://github.com/robb-j/gruber).
-The configuration is self-documenting and with the repo checked-out, you can get it with `deno task config` which outputs something like this:
+The container has configuration based on a JSON file, `config.json`, CLI
+arguments and environment variables, based on
+[Gruber](https://github.com/robb-j/gruber). The configuration is
+self-documenting and with the repo checked-out, you can get it with
+`deno task config` which outputs something like this:
 
-| name         | type   | flag   | variable     | fallback                                   |
-| ------------ | ------ | ------ | ------------ | ------------------------------------------ |
-| database.url | url    | ~      | DATABASE_URL | postgres://user:secret@localhost:5432/user |
-| env          | string | ~      | DENO_ENV     | production                                 |
-| meta.name    | string | ~      | APP_NAME     | drax-metrics                               |
-| meta.version | string | ~      | APP_VERSION  | 1.2.3                                      |
-| port         | number | --port | APP_PORT     | 8000                                       |
-| selfUrl      | url    | ~      | SELF_URL     | http://localhost:8000/                     |
-| cors.origins | string | ~      | CORS_ORIGINS | *                                          |
+| name         | type   | flag | variable     | fallback                                   |
+| ------------ | ------ | ---- | ------------ | ------------------------------------------ |
+| cors.origins | string | ~    | CORS_ORIGINS | *                                          |
+| database.url | url    | ~    | DATABASE_URL | postgres://user:secret@localhost:5432/user |
+| env          | string | ~    | DENO_ENV     | production                                 |
+| meta.name    | string | ~    | APP_NAME     | drax-metrics                               |
+| meta.version | string | ~    | APP_VERSION  | 0.1.0                                      |
+| server.port  | number | ~    | PORT         | 8000                                       |
+| server.url   | url    | ~    | SELF_URL     | http://localhost:8000/                     |
 
-> cors.origins - Mainly for development or local deployments, set to a csv of hosts to allow
+> cors.origins - Mainly for development or local deployments, set to a csv of
+> hosts to allow
 
-You could provide a JSON configuration file to override certain fields like this:
+You could provide a JSON configuration file to override certain fields like
+this:
 
 ```json
 {
-  "port": 9000,
-  "selfUrl": "https://metrics.example.com/",
+  "server": {
+    "url": "https://metrics.example.com/",
+    "port": 9000
+  },
   "database": {
     "url": "postgres://user:really_really_secret@example.com:5432/database"
   }
@@ -41,14 +49,20 @@ You could provide a JSON configuration file to override certain fields like this
 
 ### Events schema
 
-To validate the events you want to store, you also provide a [JSON schema](https://json-schema.org/specification), `schema.json`.
-Every event that comes into the server is validated against this schema.
+To validate the events you want to store, you also provide a
+[JSON schema](https://json-schema.org/specification), `schema.json`. Every event
+that comes into the server is validated against this schema.
 
-It is recommended to have a top-level `anyOf` operator, like [./schema.json](./schema.json), then each event type is one of the children of that. Every event must have a `name` and then any other fields you would like to record. The API also takes a `visitor` field but this is validated outside of the schema. you will probably also want to use "required" too.
+It is recommended to have a top-level `anyOf` operator, like
+[./schema.json](./schema.json), then each event type is one of the children of
+that. Every event must have a `name` and then any other fields you would like to
+record. The API also takes a `visitor` field but this is validated outside of
+the schema. you will probably also want to use "required" too.
 
 ### Extra arguments
 
-When running the server, there are these extra CLI arguments you might want to use:
+When running the server, there are these extra CLI arguments you might want to
+use:
 
 - `--migrate` — run available database migrations
 
@@ -64,11 +78,14 @@ An endpoint to be used as a Kubernetes readiness probe endpoint
 
 **createEvent** — `POST /api/events/:name`
 
-Log a new event in the system. It takes a JSON payload that should have your custom fields and a `visitor` string value. It returns the new event if it is useful.
+Log a new event in the system. It takes a JSON payload that should have your
+custom fields and a `visitor` string value. It returns the new event if it is
+useful.
 
 **listTypes** — `GET /api/types`
 
-Lists each event types and the number of events for them. This is only based on the events in the database and doesn't consult the schema.
+Lists each event types and the number of events for them. This is only based on
+the events in the database and doesn't consult the schema.
 
 **typedEvents** — `GET /api/events/:name`
 
@@ -84,12 +101,13 @@ Gets all the events belonging to a visitor.
 
 **createVisitor** — `POST /api/visitors`
 
-Generate a unique ID for the `visitor` field. Visitor can be anything, I thought this might be helpful though?
+Generate a unique ID for the `visitor` field. Visitor can be anything, I thought
+this might be helpful though?
 
 **meta** — `GET /api/meta`
 
-Fetches aggregations and general information about the metrics stored.
-You get the total number of events and a list of types and visitors.
+Fetches aggregations and general information about the metrics stored. You get
+the total number of events and a list of types and visitors.
 
 ```json
 {
@@ -105,19 +123,22 @@ A JSON file for downloading all of the events in the system.
 
 ### Client
 
-There is an API client hosted along with the app, once constructed each endpoint has a same-named method to fetch the JSON with appropriate parameters as method variables.
+There is an API client hosted along with the app, once constructed each endpoint
+has a same-named method to fetch the JSON with appropriate parameters as method
+variables.
 
 ```ts
-import { DraxClient } from "http://localhost:8000/client.js"
+import { DraxClient } from "http://localhost:8000/client.js";
 
-const api = new DraxClient(location.href)
+const api = new DraxClient(location.href);
 
-const data = await api.meta()
+const data = await api.meta();
 ```
 
 ### UI
 
-If you visit the root URL, `/`, there is a basic app to explore the data in the [API](#api).
+If you visit the root URL, `/`, there is a basic app to explore the data in the
+[API](#api).
 
 ![A screenshot of the DRAX UI showing filtering events](./assets/screenshot.webp)
 
@@ -155,4 +176,5 @@ deno task serve
 3. Commit the change as `vX.Y.Z`
 4. Tag the commit as `vX.Y.Z`
 5. Push the commit & tag and it'll build the container.
-6. Upload the versioned client & schema into the S3 bucket with `public-read` permissions
+6. Upload the versioned client & schema into the S3 bucket with `public-read`
+   permissions

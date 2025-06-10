@@ -1,8 +1,15 @@
-import { serveDir } from "std/http/mod.ts";
-import { defineRoute, DenoRouter, HTTPError } from "gruber/mod.ts";
-import { runMigrations, useDatabase } from "./migrate.ts";
+import { parseArgs } from "@std/cli";
+import { serveDir } from "@std/http";
+import {
+  Cors,
+  defineRoute,
+  FetchRouter,
+  getTerminator,
+  HTTPError,
+} from "gruber/mod.ts";
+
 import { appConfig } from "./config.ts";
-import { parseArgs } from "std/cli/parse_args.ts";
+import { runMigrations, useDatabase } from "./migrate.ts";
 
 const info = defineRoute({
   method: "GET",
@@ -10,19 +17,16 @@ const info = defineRoute({
   handler() {
     return Response.json({
       message: "ok",
-      meta: appConfig.meta,
+      meta: structuredClone(appConfig.meta),
     });
   },
 });
 
-let appState = "running";
 const healthz = defineRoute({
   method: "GET",
   pathname: "/healthz",
   handler() {
-    return appState === "terminating"
-      ? new Response("terminating", { status: 503 })
-      : new Response("ok");
+    return arnie.getResponse();
   },
 });
 
@@ -37,6 +41,7 @@ const createEvent = defineRoute({
     if (typeof visitor !== "string") throw HTTPError.badRequest("bad visitor");
 
     if (!appConfig.validateEvent({ name: params.name, ...payload })) {
+      // console.error(appConfig.validateEvent.errors);
       throw HTTPError.badRequest("bad payload");
     }
 
@@ -161,7 +166,7 @@ const publicFiles = defineRoute({
 });
 
 const preflight = defineRoute({
-  method: "OPTIONS" as any, // TODO: gruber doesn't support OPTIONS requests
+  method: "OPTIONS",
   pathname: "*",
   handler({ request }) {
     console.log(request.headers);
@@ -169,38 +174,13 @@ const preflight = defineRoute({
   },
 });
 
-const corsOrigins = new Set(
-  appConfig.cors.origins.split(",").filter((h) => h.trim())
-);
+const cors = new Cors({
+  origins: appConfig.cors.origins.split(",").filter((h) => h.trim()),
+});
 
-// Loosely based on https://github.com/expressjs/cors/blob/master/lib/index.js
-function applyCors(request: Request, headers: Headers) {
-  // HTTP methods
-  headers.append(
-    "Access-Control-Allow-Method",
-    "GET,HEAD,PUT,PATCH,POST,DELETE"
-  );
-
-  // Headers
-  if (request.headers.has("access-control-request-headers")) {
-    headers.append(
-      "Access-Control-Allow-Headers",
-      request.headers.get("access-control-request-headers")!
-    );
-    headers.append("Vary", "Access-Control-Request-Headers");
-  }
-
-  // Origins
-  if (appConfig.cors.origins === "*") {
-    headers.set("Access-Control-Allow-Origin", "*");
-  } else if (
-    request.headers.has("origin") &&
-    corsOrigins.has(request.headers.get("origin")!)
-  ) {
-    headers.set("Access-Control-Allow-Origin", request.headers.get("origin")!);
-    headers.append("Vary", "Origin");
-  }
-}
+const arnie = getTerminator({
+  timeout: appConfig.env === "development" ? 0 : 5_000,
+});
 
 const routes = [
   preflight,
@@ -217,28 +197,28 @@ const routes = [
   publicFiles,
 ];
 
-async function shutdown(server: Deno.HttpServer) {
-  console.log("Exiting...");
-  appState = "shutdown";
-  server.unref();
-  // Wait longer in prod for connections to terminate and Load balancers to update
-  if (appConfig.env !== "development") {
-    await new Promise((r) => setTimeout(r, 5_000));
-  }
-  Deno.exit();
-}
-
 if (import.meta.main) {
+  const sql = useDatabase();
+
   const args = parseArgs(Deno.args, { boolean: ["migrate"] });
   if (args.migrate) await runMigrations("up");
 
-  const router = new DenoRouter({ routes });
-  const server = Deno.serve({ port: appConfig.port }, async (request) => {
-    const response = await router.getResponse(request);
-    applyCors(request, response.headers);
-    console.debug(response.status, request.method.padEnd(5), request.url);
-    return response;
+  const router = new FetchRouter({
+    routes,
+    log: true,
+    cors,
+    errorHandler: (err, request) => {
+      console.error("[http error] %s %s", request.method, request.url, err);
+    },
   });
-  Deno.addSignalListener("SIGINT", () => shutdown(server));
-  Deno.addSignalListener("SIGTERM", () => shutdown(server));
+
+  const server = Deno.serve(
+    { port: appConfig.server.port },
+    (request) => router.getResponse(request),
+  );
+
+  arnie.start(async () => {
+    await server.shutdown();
+    await sql.end();
+  });
 }

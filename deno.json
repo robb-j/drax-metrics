@@ -6,13 +6,11 @@
     "config": "deno run -A source/config.ts"
   },
   "imports": {
-    "std/": "https://deno.land/std@0.223.0/",
-    "gruber/": "https://esm.r0b.io/gruber@0.4.1/",
-    "postgres/": "https://deno.land/x/postgresjs@v3.4.4/",
-    "ajv": "npm:ajv@^8.12.0"
+    "@std/cli": "jsr:@std/cli@^1.0.19",
+    "@std/http": "jsr:@std/http@^1.0.17",
+    "ajv": "npm:ajv@^8.17.1",
+    "gruber/": "https://esm.r0b.io/gruber@0.8.0/",
+    "postgres/": "https://deno.land/x/postgresjs@v3.4.7/"
   },
-  "fmt": {
-    "singleQuote": true,
-    "semiColons": false
-  }
+  "fmt": {}
 }

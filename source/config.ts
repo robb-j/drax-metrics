@@ -1,22 +1,24 @@
-import { getDenoConfiguration } from "gruber/mod.ts";
-import meta from "../meta.json" with {type:'json'}
+import { getConfiguration } from "gruber/mod.ts";
+import meta from "../meta.json" with { type: "json" };
 
 // https://github.com/ajv-validator/ajv/issues/2132
 import _Ajv from "ajv";
-const ajv = new _Ajv.default()
+const ajv = new _Ajv.default();
 
-const config = getDenoConfiguration();
+const config = getConfiguration();
 
 const appStruct = config.object({
   env: config.string({ variable: "DENO_ENV", fallback: "production" }),
-  port: config.number({ variable: "APP_PORT", flag: "--port", fallback: 8000 }),
   meta: config.object({
-    name: config.string({ variable: 'APP_NAME', fallback: meta.name }),
-    version: config.string({ variable: 'APP_VERSION', fallback: meta.version })
+    name: config.string({ variable: "APP_NAME", fallback: meta.name }),
+    version: config.string({ variable: "APP_VERSION", fallback: meta.version }),
   }),
-  selfUrl: config.url({
-    variable: "SELF_URL",
-    fallback: "http://localhost:8000", 
+  server: config.object({
+    url: config.url({
+      variable: "SELF_URL",
+      fallback: "http://localhost:8000",
+    }),
+    port: config.number({ variable: "PORT", fallback: 8000 }),
   }),
   database: config.object({
     url: config.url({
@@ -25,31 +27,28 @@ const appStruct = config.object({
     }),
   }),
   cors: config.object({
-    origins: config.string({ variable: 'CORS_ORIGINS',fallback: '*' }),
-  })
+    origins: config.string({ variable: "CORS_ORIGINS", fallback: "*" }),
+  }),
 });
 
-export type AppConfig = ReturnType<typeof getConfig>
+export type AppConfig = ReturnType<typeof getConfig>;
 
 export async function getConfig() {
   const appConfig = await config.load(
     new URL("../config.json", import.meta.url),
-    appStruct
+    appStruct,
   );
   const eventsSchema = JSON.parse(
-    await Deno.readTextFile(new URL('../schema.json',import.meta.url))
-  )
+    await Deno.readTextFile(new URL("../schema.json", import.meta.url)),
+  );
 
-  const validateEvent = ajv.compile(eventsSchema)
+  const validateEvent = ajv.compile(eventsSchema);
 
-  return { ...appConfig, validateEvent }
+  return { ...appConfig, validateEvent };
 }
 
-export const appConfig = await getConfig()
+export const appConfig = await getConfig();
 
 if (import.meta.main) {
-  console.log(config.getUsage(appStruct));
-  console.log();
-  console.log("Current:");
-  console.log(JSON.stringify(appConfig, null, 2));
+  console.log(config.getUsage(appStruct, appConfig));
 }

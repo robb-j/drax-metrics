@@ -1,4 +1,4 @@
-import { getDenoPostgresMigrator, loader } from "gruber/mod.ts";
+import { getPostgresMigrator, loader } from "gruber/mod.ts";
 import postgres from "postgres/mod.js";
 import { appConfig } from "./config.ts";
 
@@ -8,7 +8,7 @@ export const useDatabase = loader(() => {
 
 export async function runMigrations(direction: "up" | "down") {
   const sql = useDatabase();
-  const migrator = getDenoPostgresMigrator({
+  const migrator = getPostgresMigrator({
     sql: sql,
     directory: new URL("../migrations/", import.meta.url),
   });

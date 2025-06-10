@@ -76,14 +76,14 @@ async function updateMeta() {
 }
 
 function updateTile(id, value) {
-  document.querySelector(`#${id} .tile-value`).textContent =
-    numberFormat.format(parseFloat(value));
+  document.querySelector(`#${id} .tile-value`).textContent = numberFormat
+    .format(parseFloat(value));
 }
 
 function updateFilter(id, values) {
   const select = document.getElementById(id);
   const existingOptions = new Set(
-    Array.from(select.querySelectorAll("option")).map((o) => o.value)
+    Array.from(select.querySelectorAll("option")).map((o) => o.value),
   );
   for (const value of values.filter((v) => !existingOptions.has(v))) {
     const o = document.createElement("option");

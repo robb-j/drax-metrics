@@ -1,0 +1,6 @@
+{
+  "deno.enable": true,
+  "[typescript][json][markdown][javascript]": {
+    "editor.defaultFormatter": "denoland.vscode-deno"
+  }
+}
