@@ -135,6 +135,9 @@ const api = new DraxClient(location.href);
 const data = await api.meta();
 ```
 
+The client is also hosted at `https://esm.r0b.io/drax-client@0.2.0/mod.js`,
+replace **0.2.0** with the version you want to recieve.
+
 ### UI
 
 If you visit the root URL, `/`, there is a basic app to explore the data in the
