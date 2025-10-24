@@ -1,4 +1,4 @@
-import { getPostgresMigrator, loader } from "gruber/mod.ts";
+import { getPostgresMigrator, loader } from "gruber";
 import postgres from "postgres/mod.js";
 import { appConfig } from "./config.ts";
 

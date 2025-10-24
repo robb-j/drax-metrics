@@ -1,4 +1,4 @@
-import { getConfiguration } from "gruber/mod.ts";
+import { getConfiguration } from "gruber";
 import meta from "../meta.json" with { type: "json" };
 
 // https://github.com/ajv-validator/ajv/issues/2132

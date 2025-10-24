@@ -6,7 +6,7 @@ import {
   FetchRouter,
   getTerminator,
   HTTPError,
-} from "gruber/mod.ts";
+} from "gruber";
 
 import { appConfig } from "./config.ts";
 import { runMigrations, useDatabase } from "./migrate.ts";
@@ -203,14 +203,7 @@ if (import.meta.main) {
   const args = parseArgs(Deno.args, { boolean: ["migrate"] });
   if (args.migrate) await runMigrations("up");
 
-  const router = new FetchRouter({
-    routes,
-    log: true,
-    cors,
-    errorHandler: (err, request) => {
-      console.error("[http error] %s %s", request.method, request.url, err);
-    },
-  });
+  const router = new FetchRouter({ routes, log: true, cors });
 
   const server = Deno.serve(
     { port: appConfig.server.port },
